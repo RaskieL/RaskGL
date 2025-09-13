@@ -133,6 +133,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\renderer\Chunk.cpp" />
+    <ClCompile Include="src\engine\pipeline\InstanceBuffer.cpp" />
+    <ClCompile Include="src\engine\renderer\CameraController.cpp" />
+    <ClCompile Include="src\engine\renderer\Mesh.cpp" />
+    <ClCompile Include="src\engine\renderer\Camera.cpp" />
     <ClCompile Include="src\engine\Engine.cpp" />
     <ClCompile Include="src\engine\renderer\Transformation.cpp" />
     <ClCompile Include="src\engine\tools\GLTools.cpp" />
@@ -155,7 +160,17 @@
     <ClCompile Include="src\engine\pipeline\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\engine\renderer\Chunk.h" />
+    <ClInclude Include="src\engine\pipeline\InstanceBuffer.h" />
+    <ClInclude Include="src\engine\renderer\CameraController.h" />
+    <ClInclude Include="src\engine\renderer\Frustrum.h" />
+    <ClInclude Include="src\engine\renderer\GameObject.h" />
+    <ClInclude Include="src\engine\renderer\Material.h" />
+    <ClInclude Include="src\engine\renderer\Mesh.h" />
+    <ClInclude Include="src\engine\renderer\Camera.h" />
+    <ClInclude Include="src\engine\renderer\Plane.h" />
     <ClInclude Include="src\engine\renderer\Transformation.h" />
+    <ClInclude Include="src\engine\renderer\Vertex.h" />
     <ClInclude Include="src\engine\tools\GLTools.h" />
     <ClInclude Include="src\engine\pipeline\IndexBuffer.h" />
     <ClInclude Include="src\engine\renderer\Renderer.h" />
@@ -469,7 +484,7 @@
       <SubType>
       </SubType>
     </None>
-    <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\Basic.glsl" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />

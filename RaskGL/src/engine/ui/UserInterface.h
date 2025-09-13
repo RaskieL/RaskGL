@@ -12,9 +12,9 @@ private:
 	GLFWwindow* window;
 	ImGuiIO* io;
 public:
-	UserInterface(GLFWwindow* window, int main_scale);
+	UserInterface(GLFWwindow* window, float main_scale);
 
-	void InitUI(glm::vec3 *translation, glm::vec3 *rotation, glm::vec3 *scale);
+	void InitUI(float *fov);
 	void RenderUI();
 
 	ImGuiIO& getIO() { return *io; };

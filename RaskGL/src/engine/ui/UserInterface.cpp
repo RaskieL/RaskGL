@@ -1,6 +1,6 @@
 #include "UserInterface.h"
 
-UserInterface::UserInterface(GLFWwindow* wdw, int main_scale){
+UserInterface::UserInterface(GLFWwindow* wdw, float main_scale){
 	UserInterface::window = wdw;
 	/* Initialize ImGui */
 	IMGUI_CHECKVERSION();
@@ -23,25 +23,15 @@ UserInterface::UserInterface(GLFWwindow* wdw, int main_scale){
 	ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
-void UserInterface::InitUI(glm::vec3 *translation, glm::vec3 *rotation, glm::vec3 *scale) {
+void UserInterface::InitUI(float *fov) {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
 	ImGui::Begin("Settings");
-	if (ImGui::Button("Tro")) *translation = glm::vec3(0.0f);
+	if (ImGui::Button("Rfv")) *fov = 103.0f;
 	ImGui::SameLine();
-	ImGui::SliderFloat3("Translation", &translation->x , -100.0, 100.0);
-
-	if (ImGui::Button("Rto")) *rotation = glm::vec3(0.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat3("Rotation", &rotation->x, 0.0f, 20.0f);
-
-	if (ImGui::Button("Sca")) *scale = glm::vec3(1.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("Scale", &scale->x, 0.1f, 10.0f);
-	scale->y = scale->x;
-	scale->z = scale->x;
+	ImGui::SliderFloat("FOV", fov, 10.0f, 130.0f);
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / UserInterface::getIO().Framerate, UserInterface::getIO().Framerate);
 	ImGui::End();

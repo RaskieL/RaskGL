@@ -12,6 +12,10 @@ public:
 
 	glm::mat4 getModelMatrix() const;
 
+	glm::vec3& getTranslation() { return translation;  }
+	glm::vec3& getScale() { return scale; }
+	glm::vec3& getRotationAngles() { return rotationAngles; }
+
 private:
 	glm::vec3 translation;
 	glm::vec3 scale;

@@ -22,15 +22,22 @@
 #include "Texture.h"
 
 // Renderer
+#include "GameObject.h"
 #include "Transformation.h"
+#include "Camera.h"
+#include "CameraController.h"
+#include "Chunk.h"
 
 // UI
 #include "UserInterface.h"
 
-struct Vertex {
-	glm::vec3 pos;
-	glm::vec2 uv;
-};
+float computeDeltaTime() {
+	static float lastFrame = 0.0f;
+	float currentFrame = (float)glfwGetTime();
+	float deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+	return deltaTime;
+}
 
 int main(void)
 {
@@ -50,7 +57,7 @@ int main(void)
     /* Create a windowed mode window and its OpenGL context */
     float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
 
-    window = glfwCreateWindow(WINDOW_WIDTH * (int)main_scale, WINDOW_HEIGHT * (int)main_scale, "RaskGL", NULL, NULL);
+    window = glfwCreateWindow(WINDOW_WIDTH * (int)main_scale, WINDOW_HEIGHT * (int)main_scale, "RaskGL", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -59,7 +66,7 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
 
     /* Initialize GLEW */
@@ -72,46 +79,48 @@ int main(void)
 
     /* Prints the current OpenGL version in the console */
     std::cout << glGetString(GL_VERSION) << std::endl;
+
     {
-        float s = 5.0f;
+        float s = 1.0f;
         /* Triangle vertex positions */
 		std::vector<Vertex> vertices = {
 			// +Z (front)
-			{{-s,-s, +s}, {0.0f, 0.0f}},
-			{{+s,-s, +s}, {1.0f, 0.0f}},
-			{{+s,+s, +s}, {1.0f, 1.0f}},
-			{{-s,+s, +s}, {0.0f, 1.0f}},
+			{{-s,-s, +s}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+			{{+s,-s, +s}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+			{{+s,+s, +s}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+			{{-s,+s, +s}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
 
 			// +X (right)
-			{{+s,-s, +s}, {0.0f, 0.0f}},
-			{{+s,-s, -s}, {1.0f, 0.0f}},
-			{{+s,+s, -s}, {1.0f, 1.0f}},
-			{{+s,+s, +s}, {0.0f, 1.0f}},
+			{{+s,-s, +s}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{+s,-s, -s}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{+s,+s, -s}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
+			{{+s,+s, +s}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
 
 			// -Z (back)
-			{{+s,-s,-s}, {0.0f, 0.0f}},
-			{{-s,-s,-s}, {1.0f, 0.0f}},
-			{{-s,+s,-s}, {1.0f, 1.0f}},
-			{{+s,+s,-s}, {0.0f, 1.0f}},
+			{{+s,-s,-s}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},
+			{{-s,-s,-s}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},
+			{{-s,+s,-s}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
+			{{+s,+s,-s}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
 
 			// -X (left)
-			{{-s,-s,-s}, {0.0f, 0.0f}},
-			{{-s,-s, +s}, {1.0f, 0.0f}},
-			{{-s,+s, +s}, {1.0f, 1.0f}},
-			{{-s,+s,-s}, {0.0f, 1.0f}},
+			{{-s,-s,-s}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
+			{{-s,-s, +s}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
+			{{-s,+s, +s}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
+			{{-s,+s,-s}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
 
 			// +Y (top)
-			{{-s,+s, +s}, {0.0f, 0.0f}},
-			{{+s,+s, +s}, {1.0f, 0.0f}},
-			{{+s,+s, -s}, {1.0f, 1.0f}},
-			{{-s,+s, -s}, {0.0f, 1.0f}},
+			{{-s,+s, +s}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{+s,+s, +s}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{+s,+s, -s}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
+			{{-s,+s, -s}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
 
 			// -Y (bottom)
-			{{-s,-s,-s}, {0.0f, 0.0f}},
-			{{+s,-s,-s}, {1.0f, 0.0f}},
-			{{+s,-s, +s}, {1.0f, 1.0f}},
-			{{-s,-s, +s}, {0.0f, 1.0f}},
+			{{-s,-s,-s}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+			{{+s,-s,-s}, {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+			{{+s,-s, +s}, {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
+			{{-s,-s, +s}, {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
 		};
+
 
         /* Triangle vertex indices to draw a square */
 		std::vector<unsigned int> indices = {
@@ -123,70 +132,61 @@ int main(void)
 	        20,21,22, 22,23,20  // bottom
 		}; 
 
-        /* Texture Shader Blending */
-        GLCall(glEnable(GL_BLEND));
-        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-        /* Enable Depth testing */
-        GLCall(glEnable(GL_DEPTH_TEST));
-        GLCall(glDepthFunc(GL_LESS));
-
-        /* Vertex Array Object & Vertex Buffer initialization */
-        VertexArray vertexArray;
-        VertexBuffer vertexBuffer(vertices.data(), (unsigned int)vertices.size() * (unsigned int)sizeof(Vertex));
-
-        VertexBufferLayout layout;
-        layout.Push<float>(3);
-        layout.Push<float>(2);
-        vertexArray.AddBuffer(vertexBuffer, layout);
-
-        /* Index Buffer Initialization */
-        IndexBuffer indexBuffer(indices.data(), (unsigned int)indices.size());
-
-        /* Shader initialization */
-        Shader shader("res/shaders/Basic.shader");
-        shader.Bind();
-
-        Texture texture("res/textures/seal_arrow.png");
-        texture.Bind(0);
-        shader.SetUniform1i("u_Texture", 0);
-
-        vertexArray.Unbind();
-        shader.Unbind();
-        vertexBuffer.Unbind();
-        indexBuffer.Unbind();
-
         Renderer renderer;
-        Transformation transform;
+        Camera camera(glm::vec3(0, 0, 50), glm::vec3(0.0f), glm::vec3(0, 1, 0), 103.0f, (float)WINDOW_WIDTH * main_scale / (float)WINDOW_HEIGHT * main_scale, 0.01f, 100.0f);
+		CameraController controller(&camera, window);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetWindowUserPointer(window, &controller);
+		glfwSetCursorPosCallback(window, [](GLFWwindow* win, double x, double y) {
+			auto controller = static_cast<CameraController*>(glfwGetWindowUserPointer(win));
+			controller->MouseCallback(x, y);
+		});
+        renderer.Init();
 
-        glm::vec3 translation(0, 0, 0);
-        glm::vec3 scale(1.0f);
-        glm::vec3 rotation(0, 0, 0);
+        auto cubeMesh = std::make_shared<Mesh>(vertices, indices);
+        auto shader =  std::make_shared<Shader>("res/shaders/Basic.glsl");
+        auto texture = std::make_shared<Texture>("res/textures/seal_arrow.png");
+        auto material = std::make_shared<Material>(shader, texture);
+
+		std::vector<glm::mat4> cubeTransforms;
+        const int GRID_SIZE = 256;
+
+		for (int z = 0; z < GRID_SIZE; z++) {
+			for (int x = 0; x < GRID_SIZE; x++) {
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x * 2.0f * s - GRID_SIZE, 0.0f, z * 2.0f * s - GRID_SIZE));
+				cubeTransforms.push_back(model);
+			}
+		}
+
+        Chunk cubeChunk(cubeMesh, material, cubeTransforms, GRID_SIZE, glm::vec3(0.0f));
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
+			float deltaTime = computeDeltaTime();
+            /* Clear render space */
             renderer.Clear();
             /* Poll for and process events */
             glfwPollEvents();
 
-            /* Rendering matrices */
-            glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), (float)WINDOW_WIDTH * main_scale / (float)WINDOW_HEIGHT * main_scale, 0.1f, 100.0f); // projection
-            glm::mat4 viewMatrix = glm::lookAt(glm::vec3(0, 0, 50), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); // position, looking at, head is up
+            controller.ProcessInput(deltaTime);
 
-            transform.setTranslation(translation);
-            transform.setRotation(rotation);
-            transform.setScale(scale);
-
-            glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * transform.getModelMatrix(); // Multiplication dans l'odre PVM dans OpenGL
+			glm::mat4 vp = camera.getProjectionMatrix() * camera.getViewMatrix();
+			Frustum frustum = ExtractFrustum(vp);
 
             /* GL Rendering */
-            shader.Bind();
-			shader.SetUniformMat4f("u_MVP", mvpMatrix);
-			renderer.Draw(vertexArray, indexBuffer, shader);
+			for (int i = 0; i < cubeChunk.getTransforms().size(); i++) {
+				cubeChunk.getTransforms()[i] = glm::translate(glm::mat4(1.0f),
+					glm::vec3(cubeChunk.getTransforms()[i][3])); // keep original position or modify
+			}
+			cubeChunk.UpdateInstances();
+
+			// Draw all cubes in one instanced draw
+			cubeChunk.Draw(camera, frustum);
+            
 
             /* ImGui Rendering */
-            UI.InitUI(&translation, &rotation, &scale);
+            UI.InitUI(&camera.getFOV());
             UI.RenderUI();
 
             /* Swap front and back buffers */
@@ -194,10 +194,10 @@ int main(void)
         }
 
     }
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }
-

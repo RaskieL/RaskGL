@@ -16,6 +16,7 @@ Shader::Shader(const std::string& filepath) : m_FilePath(filepath), m_RendererID
 
 Shader::~Shader()
 {
+    std::cout << "Shader destroyed !" << std::endl;
 	GLCall(glDeleteProgram(m_RendererID));
 }
 
@@ -30,7 +31,6 @@ void Shader::Unbind() const
 }
 
 
-
 unsigned int Shader::CompileShader(unsigned int type, const std::string& source) {
     GLCall(unsigned int id = glCreateShader(type));
     const char* src = source.c_str();
@@ -43,7 +43,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
     if (result == GL_FALSE) {
         int length;
         GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
-        char* message = (char*)_malloca(length * sizeof(char));
+        auto message = (char*)_malloca(length * sizeof(char));
         GLCall(glGetShaderInfoLog(id, length, &length, message));
 
         std::cout << "FAILED TO COMPILE "
