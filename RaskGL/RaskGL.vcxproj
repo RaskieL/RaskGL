@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src\engine;src\engine\tools;src\engine\core;src\engine\renderer;src\engine\pipeline;src\engine\ui;src\vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\GLEW\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\engine;src\engine\tools;src\engine\renderer;src\engine\pipeline;src\engine\ui;src\vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\GLEW\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src\engine;src\engine\tools;src\engine\core;src\engine\renderer;src\engine\pipeline;src\engine\ui;src\vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\GLEW\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\engine;src\engine\tools;src\engine\renderer;src\engine\pipeline;src\engine\ui;src\vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\GLEW\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +139,11 @@
     <ClCompile Include="src\engine\renderer\Mesh.cpp" />
     <ClCompile Include="src\engine\renderer\Camera.cpp" />
     <ClCompile Include="src\engine\Engine.cpp" />
+    <ClCompile Include="src\engine\pipeline\InstanceBuffer.cpp" />
+    <ClCompile Include="src\engine\renderer\Camera.cpp" />
+    <ClCompile Include="src\engine\renderer\CameraController.cpp" />
+    <ClCompile Include="src\engine\renderer\InstanceRenderer.cpp" />
+    <ClCompile Include="src\engine\renderer\Mesh.cpp" />
     <ClCompile Include="src\engine\renderer\Transformation.cpp" />
     <ClCompile Include="src\engine\tools\GLTools.cpp" />
     <ClCompile Include="src\engine\pipeline\IndexBuffer.cpp" />
@@ -162,12 +167,14 @@
   <ItemGroup>
     <ClInclude Include="src\engine\renderer\Chunk.h" />
     <ClInclude Include="src\engine\pipeline\InstanceBuffer.h" />
+    <ClInclude Include="src\engine\renderer\Camera.h" />
     <ClInclude Include="src\engine\renderer\CameraController.h" />
+    <ClInclude Include="src\engine\renderer\Block.h" />
+    <ClInclude Include="src\engine\renderer\InstanceRenderer.h" />
     <ClInclude Include="src\engine\renderer\Frustrum.h" />
     <ClInclude Include="src\engine\renderer\GameObject.h" />
     <ClInclude Include="src\engine\renderer\Material.h" />
     <ClInclude Include="src\engine\renderer\Mesh.h" />
-    <ClInclude Include="src\engine\renderer\Camera.h" />
     <ClInclude Include="src\engine\renderer\Plane.h" />
     <ClInclude Include="src\engine\renderer\Transformation.h" />
     <ClInclude Include="src\engine\renderer\Vertex.h" />
