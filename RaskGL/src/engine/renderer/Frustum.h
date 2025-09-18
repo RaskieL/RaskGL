@@ -1,4 +1,3 @@
-// FrustumUtils.h  (replace your current ExtractFrustum with this)
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp> // optional
@@ -13,25 +12,19 @@ struct Frustum {
 	Plane planes[6]; // left, right, bottom, top, near, far
 };
 
-// Build plane from three points (a,b,c) and ensure normal points toward the frustum center
 inline Plane MakePlaneFromPoints(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& frustumCenter)
 {
 	Plane p;
 	glm::vec3 n = glm::normalize(glm::cross(b - a, c - a));
-	// Ensure normal points inward (toward center)
 	if (glm::dot(n, frustumCenter - a) < 0.0f) n = -n;
 	p.normal = n;
-	p.d = -glm::dot(n, a); // plane: dot(n, x) + d = 0
+	p.d = -glm::dot(n, a);
 	return p;
 }
 
-// Robust frustum extractor using inverse(VP) and NDC corners
 inline Frustum ExtractFrustumFromVP(const glm::mat4& vp)
 {
-	// Inverse VP to convert NDC -> world
 	glm::mat4 inv = glm::inverse(vp);
-
-	// NDC corners (OpenGL: x,y,z in [-1,1])
 	std::array<glm::vec4, 8> ndc = {
 		glm::vec4(-1, -1, -1, 1), // 0 near bottom-left
 		glm::vec4(1, -1, -1, 1), // 1 near bottom-right
@@ -55,7 +48,7 @@ inline Frustum ExtractFrustumFromVP(const glm::mat4& vp)
 	center /= 8.0f;
 
 	Frustum f;
-	// Choose three points on each face (order doesn't matter since we flip normal toward center)
+	// Choose three points on each face
 	f.planes[0] = MakePlaneFromPoints(p[3], p[0], p[4], center); // Left  (near top-left, near bottom-left, far bottom-left)
 	f.planes[1] = MakePlaneFromPoints(p[1], p[2], p[6], center); // Right (near bottom-right, near top-right, far top-right)
 
@@ -77,7 +70,7 @@ inline std::array<glm::vec3, 8> ExtractFrustumCorners(const glm::mat4& vp) {
 		for (int y = -1; y <= 1; y += 2) {
 			for (int z = -1; z <= 1; z += 2) {
 				glm::vec4 pt = invVP * glm::vec4((float)x, (float)y, (float)z, 1.0f);
-				pt /= pt.w; // perspective divide
+				pt /= pt.w;
 				corners[i++] = glm::vec3(pt);
 			}
 		}
@@ -85,13 +78,11 @@ inline std::array<glm::vec3, 8> ExtractFrustumCorners(const glm::mat4& vp) {
 	return corners;
 }
 
-
-// sphere test (same semantics as before: returns false if sphere is fully outside)
 inline bool SphereInFrustum(const Frustum& frustum, const glm::vec3& center, float radius)
 {
 	for (int i = 0; i < 6; ++i) {
 		float dist = glm::dot(frustum.planes[i].normal, center) + frustum.planes[i].d;
-		if (dist < -radius) return false; // completely outside
+		if (dist < -radius) return false;
 	}
 	return true;
 }

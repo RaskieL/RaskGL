@@ -166,7 +166,7 @@
     <ClInclude Include="src\engine\renderer\CameraController.h" />
     <ClInclude Include="src\engine\renderer\Block.h" />
     <ClInclude Include="src\engine\renderer\InstanceRenderer.h" />
-    <ClInclude Include="src\engine\renderer\Frustrum.h" />
+    <ClInclude Include="src\engine\renderer\Frustum.h" />
     <ClInclude Include="src\engine\renderer\GameObject.h" />
     <ClInclude Include="src\engine\renderer\Material.h" />
     <ClInclude Include="src\engine\renderer\Mesh.h" />

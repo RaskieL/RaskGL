@@ -6,7 +6,6 @@
 #include "InstanceBuffer.h"
 #include "Camera.h"
 #include "Renderer.h"
-#include "Frustrum.h"
 
 class InstanceRenderer
 {

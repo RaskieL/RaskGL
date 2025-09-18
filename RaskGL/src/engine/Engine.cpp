@@ -29,6 +29,7 @@
 #include "InstanceRenderer.h"
 #include "Chunk.h"
 #include "Block.h"
+#include "Frustum.h"
 
 // UI
 #include "UserInterface.h"
@@ -142,24 +143,37 @@ int main(void)
 		auto material = std::make_shared<Material>(shader, texture);
 
 
-		std::vector<Chunk> chunks;
+		std::unordered_map<glm::ivec3, Chunk, ivec3Hash> chunks;
+		std::unordered_map<glm::ivec3, VisibleChunk, ivec3Hash> visibleChunks;
 		for (int cz = 0; cz < 2; cz++) {
 			for (int cy = 0; cy < 2; cy++) {
 				for (int cx = 0; cx < 2; cx++) {
-					std::vector<Block> blocks;
+
+					Chunk chunk = { glm::vec3(cx, cy,cz) };
+					Block block;
 					for (int z = 0; z < CHUNK_SIZE; z++) {
 						for (int y = 0; y < CHUNK_SIZE; y++) {
 							for (int x = 0; x < CHUNK_SIZE; x++) {
 								glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x * 2.0f * BLOCK_SCALE - CHUNK_SIZE * cx * 2, y * 2.0f * BLOCK_SCALE - CHUNK_SIZE * cy * 2, z * 2.0f * BLOCK_SCALE - CHUNK_SIZE * cz * 2));
-								blocks.push_back({ 1, glm::vec3(x, 0, z), model });
+								block.blockId = 1;
+								block.chunkPosition = glm::vec3(x, y, z);
+								block.transform = model;
+
+								chunk.blocks.insert({ glm::ivec3(x, y, z), block });
 							}
 						}
 					}
-					chunks.push_back({ glm::vec3(cx, cy, cz), blocks });
+					chunks.insert({ glm::ivec3(chunk.position), chunk });
 				}
 			}
 		}
-		
+
+		for(auto& c : chunks){
+			VisibleChunk vc;
+			vc.position = c.second.position;
+			vc.blockTransforms = c.second.GetVisibleBlocks(chunks);
+			visibleChunks.insert({glm::ivec3(c.second.position), vc});
+		}
 
 		InstanceRenderer renderer(cubeMesh, material);
         Camera camera(glm::vec3(0, 0, 50), glm::vec3(0.0f), glm::vec3(0, 1, 0), 103.0f, (float)WINDOW_WIDTH * main_scale / (float)WINDOW_HEIGHT * main_scale, 0.01f, 100.0f);
@@ -173,7 +187,7 @@ int main(void)
 		}));
         renderer.Init();
 
-		float radiusScale = 1.09f;
+		float radiusScale = 1.2f;
 		float chunkRadius = (glm::sqrt(3.0f) * (chunkWorldSize * 0.5f)) * radiusScale;
 		float blockRadius = (glm::sqrt(3.0f) * (blockWorldSize * 0.5f)) * radiusScale;
 
@@ -192,18 +206,16 @@ int main(void)
 			Frustum frustum = ExtractFrustumFromVP(vp);
 
             /* GL Rendering */
-			std::vector<glm::mat4> visibleTransforms; // A OPTIMISER
-			for(auto& chunk : chunks) {
-				glm::vec3 center = chunk.position + glm::vec3(chunkWorldSize * 0.5f);
+			std::vector<glm::mat4> visibleTransforms;
+			for(auto& c : visibleChunks) {
+				glm::vec3 center = c.second.position + glm::vec3(chunkWorldSize * 0.5f);
 
 				if (!SphereInFrustum(frustum, center, chunkRadius * 1.5f)) continue;
 
-				for (auto& block : chunk.blocks) {
-					center = glm::vec3(block.transform[3]);
-
+				for (auto& block : c.second.blockTransforms){
+					center = glm::vec3(block[3]);
 					if (!SphereInFrustum(frustum, center, blockRadius)) continue;
-
-					visibleTransforms.push_back(block.transform);
+					visibleTransforms.push_back(block);
 				}
 			}
 

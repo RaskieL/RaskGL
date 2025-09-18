@@ -1025,7 +1025,7 @@
     <ClInclude Include="src\engine\renderer\InstanceRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\renderer\Frustrum.h">
+    <ClInclude Include="src\engine\renderer\Frustum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\engine\renderer\GameObject.h">
