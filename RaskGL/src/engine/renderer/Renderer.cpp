@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include <iostream>
 
+
 void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const {
 
     shader.Bind();
@@ -10,13 +11,13 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
     GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 }
 
-void Renderer::DrawArrays(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const {
-
+void Renderer::DrawArrays(Camera camera, const VertexArray& va, const IndexBuffer& ib, Shader& shader, GLenum drawMode) const {
 	shader.Bind();
-	va.Bind();
-	ib.Bind();
+	shader.SetUniformMat4f("uVP", camera.getProjectionMatrix() * camera.getViewMatrix());
 
-	GLCall(glDrawArrays(GL_TRIANGLES, 0, ib.GetCount()));
+	va.Bind();
+
+	GLCall(glDrawArrays(drawMode, 0, ib.GetCount()));
 }
 
 void Renderer::Clear() const {

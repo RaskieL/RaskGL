@@ -30,9 +30,6 @@
     <ClCompile Include="src\engine\pipeline\VertexArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\pipeline\VertexBufferLayout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\pipeline\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1470,6 +1467,7 @@
     </None>
     <None Include="README.md" />
     <None Include="res\shaders\Basic.glsl" />
+    <None Include="res\shaders\Frustum.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\seal_arrow.png">

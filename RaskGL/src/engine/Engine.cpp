@@ -83,7 +83,8 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     {
-		float worldSize = 2.0f * CHUNK_SIZE * BLOCK_SCALE;
+		float chunkWorldSize = 2.0f * CHUNK_SIZE * BLOCK_SCALE;
+		float blockWorldSize = 2.0f * BLOCK_SCALE;
         /* Triangle vertex positions */
 		std::vector<Vertex> vertices = {
 			// +Z (front)
@@ -136,6 +137,7 @@ int main(void)
 
 		auto cubeMesh = std::make_shared<Mesh>(vertices, indices);
 		auto shader = std::make_shared<Shader>("res/shaders/Basic.glsl");
+		auto frustumShader = Shader("res/shaders/Frustum.glsl");
 		auto texture = std::make_shared<Texture>("res/textures/seal_arrow.png");
 		auto material = std::make_shared<Material>(shader, texture);
 
@@ -171,7 +173,9 @@ int main(void)
 		}));
         renderer.Init();
 
-        
+		float radiusScale = 1.09f;
+		float chunkRadius = (glm::sqrt(3.0f) * (chunkWorldSize * 0.5f)) * radiusScale;
+		float blockRadius = (glm::sqrt(3.0f) * (blockWorldSize * 0.5f)) * radiusScale;
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
@@ -185,28 +189,29 @@ int main(void)
             controller.ProcessInput(deltaTime);
 
 			glm::mat4 vp = camera.getProjectionMatrix() * camera.getViewMatrix();
-			Frustum frustum = ExtractFrustum(vp);
+			Frustum frustum = ExtractFrustumFromVP(vp);
 
             /* GL Rendering */
 			std::vector<glm::mat4> visibleTransforms; // A OPTIMISER
 			for(auto& chunk : chunks) {
-				glm::vec3 center = chunk.position + glm::vec3(worldSize / 4.0f, worldSize / 4.0f, worldSize / 4.0f);
-				float radius = (glm::sqrt(3.0f) * (worldSize / 4.0f));
+				glm::vec3 center = chunk.position + glm::vec3(chunkWorldSize * 0.5f);
 
+				if (!SphereInFrustum(frustum, center, chunkRadius * 1.5f)) continue;
 
-				if (!SphereInFrustum(frustum, center, radius)) {
-					std::cout << "Culled chunk at x:" << chunk.position.x << " y:" << chunk.position.y << " z:" << chunk.position.z << std::endl;
-					continue;
-				}
 				for (auto& block : chunk.blocks) {
+					center = glm::vec3(block.transform[3]);
+
+					if (!SphereInFrustum(frustum, center, blockRadius)) continue;
+
 					visibleTransforms.push_back(block.transform);
 				}
 			}
 
+			
 			renderer.setTransforms(visibleTransforms);
 			renderer.UpdateInstances();
 			renderer.Draw(camera);
-            
+
 
             /* ImGui Rendering */
             UI.InitUI(&camera.getFOV());
